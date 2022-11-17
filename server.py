@@ -4,7 +4,7 @@ from geometry_msgs.msg import Pose
 
 publish = rospy.Publisher('/drone', Pose, queue_size=10)
 rospy.init_node('server')
-rate = rospy.Rate(60)
+rate = rospy.Rate(60) #max out if needed to 120
 
 print("Trying to connect")
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

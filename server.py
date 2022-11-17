@@ -8,7 +8,7 @@ rate = rospy.Rate(60) #max out if needed to 120
 
 print("Trying to connect")
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('192.168.1.10', 59090))
+sock.connect(('192.168.1.10', 59090)) #computer running motive ip, high port number(must be same on motive computer)
 print("connected")
 
 prev = None

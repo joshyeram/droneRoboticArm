@@ -1,30 +1,33 @@
 import socket
 import rospy
-from geometry_msgs.msg import Pose
+import std_msgs.msg
+from geometry_msgs.msg import PoseStamped
 
-publish = rospy.Publisher('/drone', Pose, queue_size=10)
+publish = rospy.Publisher('/drone', PoseStamped, queue_size=10)
 rospy.init_node('server')
 rate = rospy.Rate(60) #max out if needed to 120
 
 print("Trying to connect")
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('192.168.1.10', 59090)) #computer running motive ip, high port number(must be same on motive computer)
-print("connected")
+
 
 prev = None
 name = ""
 pos = (0, 0, 0)
 rot = (0, 0, 0, 0)
-
+frame = 0
 while True:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(('192.168.1.3', 59090)) #computer running motive ip, high port number(must be same on motive computer)
     stream = sock.recv(1024).decode('utf-8')
     data = stream.split(',')
+    sock.close()
     if data == "":
         print("No Data")
         rate.sleep()
         continue
     if (len(data) != 8):
         print("invalid data")
+        rate.sleep()
         continue
     else:
         name = data[0]
@@ -34,13 +37,15 @@ while True:
             print("no new data")
         prev = pos
         print(pos)
-        dronePose = Pose()
-        dronePose.position.x = pos[0]
-        dronePose.position.y = pos[1]
-        dronePose.position.z = pos[2]
-        dronePose.orientation.x = rot[0]
-        dronePose.orientation.y = rot[1]
-        dronePose.orientation.z = rot[2]
-        dronePose.orientation.w = rot[3]
+        dronePose = PoseStamped()
+        dronePose.pose.position.x = pos[0]
+        dronePose.pose.position.y = pos[1]
+        dronePose.pose.position.z = pos[2]
+        dronePose.pose.orientation.x = rot[0]
+        dronePose.pose.orientation.y = rot[1]
+        dronePose.pose.orientation.z = rot[2]
+        dronePose.pose.orientation.w = rot[3]
+        dronePose.header.frame_id = "map"
+        dronePose.header.stamp = rospy.Time.now()
         publish.publish(dronePose)
         rate.sleep()
